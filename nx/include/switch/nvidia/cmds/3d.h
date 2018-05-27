@@ -70,7 +70,10 @@ enum {
     NvReg3D_ClearBufferTrigger = 0x674,
     NvReg3D_ViewportTransformEnable = 0x64b,
     NvReg3D_ViewportControl = 0x64f,
-
+    NvReg3D_ShaderProgramNSelect = 0x800,
+    NvReg3D_ShaderProgramNStartId = 0x801,
+    NvReg3D_ShaderProgramNGprAlloc = 0x803,
+    NvReg3D_ShaderProgramNType = 0x804,
     NvReg3D_ConstantBufferSize = 0x8e0,
     NvReg3D_ConstantBufferAddr = 0x8e1,
     NvReg3D_ConstantBufferLoadOffset = 0x8e3,
@@ -123,6 +126,15 @@ enum {
 
 #define NvReg3D_VertexStreamEnableDivisor(n) \
     (NvReg3D_VertexStreamNEnableDivisor + (n))
+
+#define NvReg3D_ShaderProgramSelect(n) \
+    (NvReg3D_ShaderProgramNSelect + 16*(n))
+#define NvReg3D_ShaderProgramStartId(n) \
+    (NvReg3D_ShaderProgramNStartId + 16*(n))
+#define NvReg3D_ShaderProgramGprAlloc(n) \
+    (NvReg3D_ShaderProgramNGprAlloc + 16*(n))
+#define NvReg3D_ShaderProgramType(n) \
+    (NvReg3D_ShaderProgramNType + 16*(n))
 
 #define NvReg3D_ConstantBufferBind(n) \
     (NvReg3D_ConstantBufferBindN + 8*(n))
