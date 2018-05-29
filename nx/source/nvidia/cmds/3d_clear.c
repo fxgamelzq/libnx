@@ -14,7 +14,8 @@ void vnClearBuffer(Vn* vn, NvBuffer* buf, u32 width, u32 height, u32 format, con
         vn,
         NvIncr(0, NvReg3D_RenderTargetNAddr + 0x10*0,
             gpu_addr >> 32, gpu_addr,
-            width, height,
+            buf->size / height, /* Stride if linear */
+            height,
             format,   /* Format */
             0x1000, /* TileMode */
             1,      /* ArrayMode */
