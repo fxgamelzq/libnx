@@ -9,4 +9,4 @@ typedef enum {
     NvProgramStage_FP=0x50,
 } NvProgramStage;
 
-void vnBindProgram(Vn* vn, NvProgramStage stage, u8 num_gprs, NvBuffer* buf);
+void vnBindProgram(Vn* vn, NvProgramStage stage, u32 offset, u8 num_gprs);
