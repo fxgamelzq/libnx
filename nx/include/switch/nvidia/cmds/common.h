@@ -10,6 +10,7 @@ typedef struct {
 
     NvBuffer  vertex_runout;
     NvBuffer  const_buffer0;
+    NvBuffer  code_segment;
 } Vn;
 
 #define vnAddCmd(vn, ...) \

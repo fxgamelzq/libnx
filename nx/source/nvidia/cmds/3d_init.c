@@ -254,7 +254,7 @@ Result vnInit3D(Vn* vn) {
     //vnAddCmd(vn, NvIncr(0, NvReg3D_ConstantBufferLoadN, 0x44fffe00));
 
     vnAddCmd(
-        vn, 
+        vn,
         NvImm(0, NvReg3D_ZetaArrayMode, 1),
         NvImm(0, NvReg3D_ConservativeRaster, 0),
     );
@@ -271,7 +271,12 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, NvReg3D_MultisampleCoverageToColor, 0)
     );
 
-    //vnAddCmd(vn, NvIncr(0, NvReg3D_CodeAddr, 4, 0x00000000));
+    rc = nvBufferCreateRw(
+        &vn->code_segment, 1 << 19, 1 << 17, 0, &vn->parent->addr_space);
+    if (R_FAILED(rc))
+        return rc;
+    gpu_addr = nvBufferGetGpuAddr(&vn->code_segment);
+    vnAddCmd(vn, NvIncr(0, NvReg3D_CodeAddr, gpu_addr >> 32, gpu_addr));
 
     vnAddCmd(
         vn,
