@@ -70,6 +70,8 @@ enum {
     NvReg3D_ClearBufferTrigger = 0x674,
     NvReg3D_ViewportTransformEnable = 0x64b,
     NvReg3D_ViewportControl = 0x64f,
+    NvReg3D_VertexArrayNStart = 0x701,
+    NvReg3D_VertexArrayNEnd = 0x7c0,
     NvReg3D_ShaderProgramNSelect = 0x800,
     NvReg3D_ShaderProgramNStartId = 0x801,
     NvReg3D_ShaderProgramNGprAlloc = 0x803,
@@ -141,3 +143,8 @@ enum {
 
 #define NvReg3D_MmeShadowScratch(n) \
     (NvReg3D_MmeShadowScratchN + (n))
+
+#define NvReg3D_VertexArrayStart(n) \
+    (NvReg3D_VertexArrayNStart + 16*(n))
+#define NvReg3D_VertexArrayEnd(n) \
+    (NvReg3D_VertexArrayNEnd + 8*(n))

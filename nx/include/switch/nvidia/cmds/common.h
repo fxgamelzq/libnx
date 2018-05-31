@@ -16,6 +16,9 @@ typedef struct {
 #define vnAddCmd(vn, ...) \
     nvCmdListAddCmd(&(vn)->cmd_list, __VA_ARGS__)
 
+#define vnSetAddr(gpu_addr) \
+   gpu_addr >> 32, gpu_addr
+
 static inline Result vnSubmit(Vn* v) {
     NvFence f;
     return nvGpfifoSubmit(&v->parent->gpfifo, &v->cmd_list, &f);

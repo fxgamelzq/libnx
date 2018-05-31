@@ -89,6 +89,7 @@ extern "C" {
 #include "switch/nvidia/cmds/3d.h"
 #include "switch/nvidia/cmds/3d_init.h"
 #include "switch/nvidia/cmds/3d_rendertarget.h"
+#include "switch/nvidia/cmds/3d_vertexbuffer.h"
 #include "switch/nvidia/cmds/3d_viewport.h"
 #include "switch/nvidia/cmds/3d_clear.h"
 #include "switch/nvidia/cmds/3d_program.h"
