@@ -27,6 +27,7 @@ enum {
     NvReg3D_WindowNHorizontal = 0x340,
     NvReg3D_WindowNVertical = 0x341,
     NvReg3D_CallLimitLog = 0x359,
+    NvReg3D_VertexBufferStart = 0x35d,
     NvReg3D_ClearColor = 0x360,
     NvReg3D_PrimRestartWithDrawArrays = 0x37a,
     NvReg3D_ScissorNEnable = 0x380,
@@ -40,6 +41,7 @@ enum {
     NvReg3D_ScreenScissorVertical = 0x3fe,
     NvReg3D_ClearFlags = 0x43e,
     NvReg3D_ConservativeRaster = 0x452,
+    NvReg3D_VertexNAttribFormat = 0x458,
     NvReg3D_MultisampleCoverageToColor = 0x47e,
     NvReg3D_RenderTargetControl = 0x487,
     NvReg3D_ZetaArrayMode = 0x48c,
@@ -60,16 +62,22 @@ enum {
     NvReg3D_EdgeFlag = 0x579,
     NvReg3D_PointCoordReplace = 0x581,
     NvReg3D_CodeAddr = 0x582,
+    NvReg3D_VertexEndGL = 0x585,
+    NvReg3D_VertexBeginGL = 0x586,
     NvReg3D_VertexIdGenMode = 0x593,
     NvReg3D_PointRasterRules = 0x597,
     NvReg3D_ProvokingVertexLast = 0x5a1,
     NvReg3D_IndexArrayLimit = 0x5f4,
+    NvReg3D_IndexArrayFormat = 0x5f6,
+    NvReg3D_IndexBatchFirst = 0x5f7,
+    NvReg3D_IndexBatchCount = 0x5f8,
     NvReg3D_VertexStreamNEnableDivisor = 0x620,
     NvReg3D_VpPointSize = 0x644,
     NvReg3D_ZcullTestMask = 0x65b,
     NvReg3D_ClearBufferTrigger = 0x674,
     NvReg3D_ViewportTransformEnable = 0x64b,
     NvReg3D_ViewportControl = 0x64f,
+    NvReg3D_VertexArrayNFetch = 0x700,
     NvReg3D_VertexArrayNStart = 0x701,
     NvReg3D_VertexArrayNEnd = 0x7c0,
     NvReg3D_ShaderProgramNSelect = 0x800,
@@ -144,7 +152,12 @@ enum {
 #define NvReg3D_MmeShadowScratch(n) \
     (NvReg3D_MmeShadowScratchN + (n))
 
+#define NvReg3D_VertexArrayFetch(n) \
+    (NvReg3D_VertexArrayNFetch + 16*(n))
 #define NvReg3D_VertexArrayStart(n) \
     (NvReg3D_VertexArrayNStart + 16*(n))
 #define NvReg3D_VertexArrayEnd(n) \
     (NvReg3D_VertexArrayNEnd + 8*(n))
+
+#define NvReg3D_VertexAttribFormat(n) \
+    (NvReg3D_VertexNAttribFormat + 4*(n))
