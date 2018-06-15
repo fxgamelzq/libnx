@@ -1,6 +1,10 @@
 #pragma once
 
 enum {
+    NvReg3D_MmeInstructionRamPointer = 0x45,
+    NvReg3D_MmeInstructionRamLoad = 0x46,
+    NvReg3D_MmeStartAddressRamPointer = 0x47,
+    NvReg3D_MmeStartAddressRamLoad = 0x48,
     NvReg3D_MmeShadowRamControl = 0x49,
     NvReg3D_LineWidthSeparate = 0x83,
     NvReg3D_LocalBase = 0x1df,
@@ -91,6 +95,8 @@ enum {
     NvReg3D_TextureConstantBufferIndex = 0x982,
     NvReg3D_ConstantBufferBindN = 0x904,
     NvReg3D_MmeShadowScratchN = 0xd00,
+    NvReg3D_MmeMacroNCall = 0xe00,
+    NvReg3D_MmeMacroNData = 0xe01,
 };
 
 #define NvReg3D_ViewportScaleX(n) \
@@ -151,6 +157,11 @@ enum {
 
 #define NvReg3D_MmeShadowScratch(n) \
     (NvReg3D_MmeShadowScratchN + (n))
+
+#define NvReg3D_MmeMacroCall(n) \
+    (NvReg3D_MmeMacroNCall + 2*(n))
+#define NvReg3D_MmeMacroData(n) \
+    (NvReg3D_MmeMacroNData + 2*(n))
 
 #define NvReg3D_VertexArrayFetch(n) \
     (NvReg3D_VertexArrayNFetch + 16*(n))
