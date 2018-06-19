@@ -315,14 +315,15 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, NvReg3D_MultisampleMode, 0),
         NvImm(0, NvReg3D_MultisampleControl, 0),
         // ???
-        NvImm(0, 0x433, 4),
-        NvImm(0, 0x438, 0xff),
-        NvImm(0, 0x439, 0xff),
-        NvImm(0, 0x43b, 0xff),
-        NvImm(0, 0x43c, 4),
-        NvImm(0, 0x1d3, 0x3f),
+        NvIncr(0, 0x433, 0),
+        NvIncr(0, 0x438, 0),
+        NvIncr(0, 0x439, 0),
+        NvIncr(0, 0x43b, 0),
+        NvIncr(0, 0x43c, 0),
+        NvIncr(0, 0x1d3, 0),
         //
-        NvIncr(0, NvReg3D_WindowNHorizontal, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+        NvIncr(0, NvReg3D_WindowNHorizontal,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
         NvImm(0, NvReg3D_ClearFlags, 0x101)
     );
 
@@ -333,18 +334,22 @@ Result vnInit3D(Vn* vn) {
 
     vnAddCmd(
         vn,
+        // ???
+        NvIncr(0, 0x5AA, 0x30003),
+        NvIncr(0, 0x5E5, 0x20002),
+        //
         NvImm(0, NvReg3D_PrimRestartWithDrawArrays, 1),
         NvImm(0, NvReg3D_PointRasterRules, 0),
         NvImm(0, NvReg3D_LinkedTsc, 0),
         NvImm(0, NvReg3D_ProvokingVertexLast, 1),
         // ???
         NvImm(0, 0x54a, 0),
-        NvImm(0, 0x400, 0x10),
-        NvImm(0, 0x86, 0x10),
-        NvImm(0, 0x43f, 0x10),
-        NvImm(0, 0x4a4, 0x10),
-        NvImm(0, 0x4b6, 0x10),
-        NvImm(0, 0x4b7, 0x10),
+        NvImm(0, 0x400, 0),
+        NvImm(0, 0x86, 0),
+        NvImm(0, 0x43f, 0),
+        NvImm(0, 0x4a4, 0),
+        NvImm(0, 0x4b6, 0),
+        NvImm(0, 0x4b7, 0),
         //
         NvImm(0, NvReg3D_CallLimitLog, 8),
         // ???
@@ -358,7 +363,7 @@ Result vnInit3D(Vn* vn) {
 
     vnAddCmd(
         vn,
-        NvImm(0, NvReg3D_VertexIdGenMode, 0),
+        NvImm(0, NvReg3D_VertexIdGenMode, 0x1000),
         NvImm(0, NvReg3D_ZcullStatCtrsEnable, 1),
         NvImm(0, NvReg3D_LineWidthSeparate, 1),
         // ???
@@ -374,7 +379,7 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, 0x44c, 0x13),
         NvImm(0, 0xdd, 0),
         NvIncr(0, NvReg3D_Layer, 0x10000),
-        NvImm(0, 0x488, 5),
+        NvImm(0, 0x488, 0),
         NvIncr(0, 0x514, 0x00800008),
     );
 
@@ -386,12 +391,15 @@ Result vnInit3D(Vn* vn) {
         NvImm(3, 0x221, 0x3f)
     );
 
-    // TODO: Call macro_14f(0x00418800, 1, 1).
-    // TODO: Call macro_14f(0x00419a08, 0, 0x10).
-    // TODO: Call macro_14f(0x00419f78, 0, 8).
-    // TODO: Call macro_14f(0x00404468, 0x07ffffff, 0x3fffffff).
-    // TODO: Call macro_14f(0x00419a04, 1, 1).
-    // TODO: Call macro_14f(0x00419a04, 2, 2).
+    vnAddCmd(
+        vn,
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x00418800, 1, 1),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x419A08, 0, 0x10),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x00419f78, 0, 8),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x00404468, 0x07ffffff, 0x3fffffff),
+        //NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x00419a04, 1, 1),
+        //NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x00419a04, 2, 2)
+    );
 
     vnAddCmd(
         vn,
@@ -400,10 +408,8 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, NvReg3D_ZcullTestMask, 0),
         NvImm(0, NvReg3D_ZcullRegion, 0),
         NvIncr(0, 0x054, 0x49000000, 0x49000001),
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x18), 0x05000500)
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x18), 0x1106500),
     );
-
-    // TODO: Call macro_21d(5, 0x00050000, 0x67);
 
     // TODO: Of what size is this buffer actually supposed to be?
     rc = nvBufferCreateRw(
@@ -415,22 +421,29 @@ Result vnInit3D(Vn* vn) {
     iova_t gpu_addr = nvBufferGetGpuAddr(&vn->vertex_runout);
     vnAddCmd(vn, NvIncr(0, NvReg3D_VertexRunoutAddr, gpu_addr >> 32, gpu_addr));
 
-    // TODO: Call macro_206(0x194);
-
-    // TODO: Write an addr(?) to low->0x8e4,high->0x8e5
-    // TODO: Write 0 to 0x8e6, 0x8e7.
-
-    // TODO: Call macro_226(5, 0x00056900, 0x100)
-    // TODO: Call macro_226(5, 0x00056A00, 0x800)
-
     // Bind all const buffers index 0 to same buffer (of size 0x5f00).
     rc = nvBufferCreateRw(
-        &vn->const_buffer0, 0x5f00 + 5*0x200, 0x1000, 0, &vn->parent->addr_space);
+        &vn->const_buffer0, 0x5f00 + 10*0x200, 0x1000, 0, &vn->parent->addr_space);
 
     if (R_FAILED(rc))
         return rc;
 
     gpu_addr = nvBufferGetGpuAddr(&vn->const_buffer0);
+
+    // FIXME: Breaks rendering
+#if 0
+    iova_t start = gpu_addr + 0x6900;
+    iova_t end = gpu_addr + 0x6A00;
+
+    vnAddCmd(
+        vn,
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(26), gpu_addr >> 32, gpu_addr, 0x67),
+        NvImm(0, NvReg3D_MmeMacroCall(21), 0x194),
+        NvIncr(0, NvReg3D_ConstantBufferLoad(0), end, end >> 32, 0, 0),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(25), start >> 32, start, 0x100),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(25), end >> 32, end, 0x400)
+    );
+#endif
 
     vnAddCmd(
         vn,
@@ -446,13 +459,13 @@ Result vnInit3D(Vn* vn) {
         vnAddCmd(vn, NvImm(0, NvReg3D_ConstantBufferBind(i), 1));
     }
 
-    // Bind const buffer index 2 to differnet buffers (each of size 0x200).
+    // Bind const buffer index 2 to different buffers (each of size 0x200).
     for (i=0; i<5; i++) {
         vnAddCmd(
             vn,
             NvIncr(0,
                 NvReg3D_ConstantBufferSize,
-                0x5f00, // Size
+                0x200, // Size
                 gpu_addr >> 32, gpu_addr // Addr
             ),
             NvImm(0, NvReg3D_ConstantBufferBind(i), 0x21),
@@ -469,23 +482,30 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, NvReg3D_BlendIndependent, 1),
         NvImm(0, NvReg3D_EdgeFlag, 1),
         NvImm(0, NvReg3D_ViewportTransformEnable, 1),
-        NvIncr(0, NvReg3D_ViewportControl, 0x181d) // ???
+        NvIncr(0, NvReg3D_ViewportControl, 0x181d), // ???
+        NvImm(0, NvReg3D_DepthClipAllowNegativeZ, 0)
     );
 
-    // NO issue.
-
-    // Reset all the viewports.
+    // Now that negative-z is disabled we need to change the viewports.
+    // Put both Z scaling and translate to 0.5: (-1..1) * 0.5 + 0.5 = 0..1
     for (i=0; i<16; i++) {
         vnAddCmd(
             vn,
-            NvIncr(0, NvReg3D_ViewportScaleX(i),
-                f2i(0.5), /* ScaleX */
-                f2i(0.5), /* ScaleY */
-                f2i(0.5), /* ScaleZ */
-                f2i(0.5), /* TranslateX */
-                f2i(0.5), /* TranslateY */
-                f2i(0.5)  /* TranslateZ */
-            ),
+            NvIncr(0, NvReg3D_ViewportScaleZ(i), f2i(0.5)),
+            NvIncr(0, NvReg3D_ViewportTranslateZ(i), f2i(0.5)),
+        );
+    }
+
+    vnAddCmd(
+        vn,
+        NvImm(0, NvReg3D_ScreenVerticalControl, 0x10)
+    );
+
+    for (i=0; i<16; i++) {
+        vnAddCmd(
+            vn,
+            NvIncr(0, NvReg3D_ViewportScaleX(i), f2i(0.5), f2i(0.5)),
+            NvIncr(0, NvReg3D_ViewportTranslateX(i), f2i(0.5), f2i(0.5)),
             NvIncr(0, NvReg3D_ViewportHorizontal(i),
                 0 | (1<<16), /* Horizontal */
                 0 | (1<<16)  /* Vertical */
@@ -493,7 +513,10 @@ Result vnInit3D(Vn* vn) {
         );
     }
 
-    //vnAddCmd(vn, NvImm(0, NvReg3D_ScreenHorizontalControl, 0x10)); // FAULTY
+    vnAddCmd(
+        vn,
+        NvImm(0, NvReg3D_MmeShadowRamControl, 0)
+    );
 
     // Reset all the scissors.
     for (i=0; i<16; i++) {
@@ -524,16 +547,16 @@ Result vnInit3D(Vn* vn) {
     // More RAM setup.
     vnAddCmd(
         vn,
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x2a), 0x0500055f),
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x2b), 0x05000561),
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x2c), 0x05000563),
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x2d), 0x05000565),
-        NvIncr(0, NvReg3D_MmeShadowScratch(0x2e), 0x05000567),
-        NvImm(0, NvReg3D_MmeShadowScratch(0x2f), 0x200),
-        NvImm(0, NvReg3D_MmeShadowScratch(0x30), 0x200),
-        NvImm(0, NvReg3D_MmeShadowScratch(0x31), 0x200),
-        NvImm(0, NvReg3D_MmeShadowScratch(0x32), 0x200),
-        NvImm(0, NvReg3D_MmeShadowScratch(0x33), 0x200)
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2a), 0x110655F),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2f), 0x200),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2b), 0x1106561),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x30), 0x200),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2c), 0x1106563),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x31), 0x200),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2d), 0x1106565),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x32), 0x200),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x2e), 0x1106567),
+        NvIncr(0, NvReg3D_MmeShadowScratch(0x33), 0x200)
     );
 
     vnAddCmd(
@@ -546,23 +569,17 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, NvReg3D_PointCoordReplace, 4),
         NvImm(0, NvReg3D_VpPointSize, 1),
         NvImm(0, 0x68b, 0),
-        NvImm(0, NvReg3D_StencilTwoSideEnable, 1)
+        NvImm(0, NvReg3D_StencilTwoSideEnable, 1),
+        NvImm(0, NvReg3D_MmeMacroCall(21), 0x184)
     );
-    // NvImm(0, 0xe2a, 0x184)); // MACRO CALL NOT IMPLEMENTED
 
-    // TODO: Call macro_206(0x184);
-    //vnAddCmd(vn, NvIncr(0, NvReg3D_ConstantBufferLoadN, 0x44fffe00));
+    //vnAddCmd(vn, NvIncr(0, NvReg3D_ConstantBufferLoad(0), 0x44fffe00));
 
     vnAddCmd(
         vn,
         NvImm(0, NvReg3D_ZetaArrayMode, 1),
         NvImm(0, NvReg3D_ConservativeRaster, 0),
-    );
-
-    // TODO: Call macro_14f(0x00418800, 0, 0x01800000);
-
-    vnAddCmd(
-        vn,
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x418800, 0, 0x1800000),
         NvImm(0, NvReg3D_MmeShadowScratch(0x34), 0),
         NvImm(0, 0xbb, 0),
         NvImm(0, NvReg3D_MultisampleRasterEnable, 0),
@@ -582,34 +599,23 @@ Result vnInit3D(Vn* vn) {
         vn,
         NvImm(0, NvReg3D_MmeShadowScratch(0x27), 0x230),
         NvImm(0, NvReg3D_MmeShadowScratch(0x23), 0x430),
-        NvImm(0, 0x5ad, 0)
+        NvImm(0, 0x5ad, 0),
+        NvIncrOnce(0, NvReg3D_MmeMacroCall(11), 0x418E00, 2, 2),
+        NvImm(1, 0x54a, 0),
+        NvImm(1, NvReg3D_TextureConstantBufferIndex, 2),
+        NvIncr(1, NvReg3D_LocalBase, 0x1000000),
+        NvIncr(1, 0x85, 0x3000000),
+        NvIncr(1, NvReg3D_CodeAddr, gpu_addr >> 32, gpu_addr),
+        NvImm(1, 0xC4, 0x503),
+        NvIncr(6, 0xB, 0x80000000),
+        NvImm(0, NvReg3D_InvalidateTextureDataNoWfi, 0),
+        NvImm(0, 0x369, 0x1011),
+        NvImm(0, NvReg3D_TicFlush, 0),
+        NvImm(0, NvReg3D_TscFlush, 0),
     );
 
-    // TODO: Call macro_14f(0x00418e40, 7, 0xf);
-    // TODO: Call macro_14f(0x00418e58, 0x842, 0xffff);
-    // TODO: Call macro_14f(0x00418e40, 0x70, 0xf0);
-    // TODO: Call macro_14f(0x00418e58, 0x04f10000, 0xffff0000);
-    // TODO: Call macro_14f(0x00418e40, 0x700, 0xf00);
-    // TODO: Call macro_14f(0x00418e5c, 0x53, 0xffff);
-    // TODO: Call macro_14f(0x00418e40, 0x7000, 0xf000);
-    // TODO: Call macro_14f(0x00418e5c, 0xe90000, 0xffff0000);
-    // TODO: Call macro_14f(0x00418e40, 0x70000, 0xf0000);
-    // TODO: Call macro_14f(0x00418e60, 0xea, 0xffff);
-    // TODO: Call macro_14f(0x00418e40, 0x700000, 0xf00000);
-    // TODO: Call macro_14f(0x00418e60, 0x00eb0000, 0xffff0000);
-    // TODO: Call macro_14f(0x00418e40, 0x07000000, 0x0f000000);
-    // TODO: Call macro_14f(0x00418e64, 0x208, 0xffff);
-    // TODO: Call macro_14f(0x00418e40, 0x70000000, 0xf0000000);
-    // TODO: Call macro_14f(0x00418e64, 0x02090000, 0xffff0000);
-    // TODO: Call macro_14f(0x00418e44, 7, 0xf);
-    // TODO: Call macro_14f(0x00418e68, 0x20a, 0xffff);
-    // TODO: Call macro_14f(0x00418e44, 0x70, 0xf0);
-    // TODO: Call macro_14f(0x00418e68, 0x020b0000, 0xffff0000);
-    // TODO: Call macro_14f(0x00418e44, 0x700, 0xf00);
-    // TODO: Call macro_14f(0x00418e6c, 0x644, 0xffff);
-
     // Setting up TiledCache and other stuff.
-    vnAddCmd(
+    /*vnAddCmd(
         vn,
         NvImm(0, 0x3d8, 0),
         NvIncr(0, 0x3d9, 0x00800080),
@@ -618,7 +624,7 @@ Result vnInit3D(Vn* vn) {
         NvImm(0, 0x442, 0x1f),
         NvIncr(0, 0x3dc, 0x00080001),
         NvImm(0, 0x44d, 0),
-    );
+    );*/
 
     // TODO: Subchannel 1:
     /*
@@ -639,13 +645,13 @@ Result vnInit3D(Vn* vn) {
     */
 
     // Flush texture info cache.
-    vnAddCmd(
+    /*vnAddCmd(
         vn,
         NvImm(0, 0x4a2, 0),
         NvImm(0, 0x369, 0x11),
         NvImm(0, 0x50a, 0),
         NvImm(0, 0x509, 0)
-    );
+    );*/
 
     vnAddCmd(
         vn,

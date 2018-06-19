@@ -32,6 +32,7 @@ enum {
     NvReg3D_WindowNVertical = 0x341,
     NvReg3D_CallLimitLog = 0x359,
     NvReg3D_VertexBufferStart = 0x35d,
+    NvReg3D_DepthClipAllowNegativeZ = 0x35f,
     NvReg3D_ClearColor = 0x360,
     NvReg3D_PrimRestartWithDrawArrays = 0x37a,
     NvReg3D_ScissorNEnable = 0x380,
@@ -43,6 +44,7 @@ enum {
     NvReg3D_CoverageModulationEnable = 0x3f6,
     NvReg3D_ScreenScissorHorizontal = 0x3fd,
     NvReg3D_ScreenScissorVertical = 0x3fe,
+    NvReg3D_StencilEnable = 0x4e0,
     NvReg3D_ClearFlags = 0x43e,
     NvReg3D_ConservativeRaster = 0x452,
     NvReg3D_VertexNAttribFormat = 0x458,
@@ -50,14 +52,18 @@ enum {
     NvReg3D_RenderTargetControl = 0x487,
     NvReg3D_ZetaArrayMode = 0x48c,
     NvReg3D_LinkedTsc = 0x48d,
+    NvReg3D_InvalidateTextureDataNoWfi = 0x4a2,
     NvReg3D_BlendIndependent = 0x4b9,
-    NvReg3D_ScreenHorizontalControl = 0x4be,
+    NvReg3D_ScreenVerticalControl = 0x4eb,
+    NvReg3D_TscFlush = 0x509,
+    NvReg3D_TicFlush = 0x50a,
     NvReg3D_ClipDistanceEnable = 0x544,
     NvReg3D_SampleCountEnable = 0x545,
     NvReg3D_ZcullStatCtrsEnable = 0x547,
     NvReg3D_PointSpriteEnable = 0x548,
     NvReg3D_MultisampleEnable = 0x54d,
     NvReg3D_MultisampleControl = 0x54f,
+    NvReg3D_RenderEnableMode = 0x556,
     NvReg3D_ZcullRegion = 0x564,
     NvReg3D_StencilTwoSideEnable = 0x565,
     NvReg3D_MultisampleCsaaEnable = 0x56d,
@@ -77,10 +83,15 @@ enum {
     NvReg3D_IndexBatchCount = 0x5f8,
     NvReg3D_VertexStreamNEnableDivisor = 0x620,
     NvReg3D_VpPointSize = 0x644,
+    NvReg3D_ClipRectEnable = 0x653,
     NvReg3D_ZcullTestMask = 0x65b,
     NvReg3D_ClearBufferTrigger = 0x674,
     NvReg3D_ViewportTransformEnable = 0x64b,
     NvReg3D_ViewportControl = 0x64f,
+    NvReg3D_PolygonCullFaceEnable = 0x646,
+    NvReg3D_PolygonFrontFace = 0x647,
+    NvReg3D_PolygonCullFaceConfig = 0x648,
+    NvReg3D_RenderEnableOverride = 0x651,
     NvReg3D_VertexArrayNFetch = 0x700,
     NvReg3D_VertexArrayNStart = 0x701,
     NvReg3D_VertexArrayNEnd = 0x7c0,
@@ -91,7 +102,7 @@ enum {
     NvReg3D_ConstantBufferSize = 0x8e0,
     NvReg3D_ConstantBufferAddr = 0x8e1,
     NvReg3D_ConstantBufferLoadOffset = 0x8e3,
-    NvReg3D_ConstantBufferLoadN = 0x8e3,
+    NvReg3D_ConstantBufferLoadN = 0x8e4,
     NvReg3D_TextureConstantBufferIndex = 0x982,
     NvReg3D_ConstantBufferBindN = 0x904,
     NvReg3D_MmeShadowScratchN = 0xd00,
@@ -154,6 +165,8 @@ enum {
 
 #define NvReg3D_ConstantBufferBind(n) \
     (NvReg3D_ConstantBufferBindN + 8*(n))
+#define NvReg3D_ConstantBufferLoad(n) \
+    (NvReg3D_ConstantBufferLoadN + (n))
 
 #define NvReg3D_MmeShadowScratch(n) \
     (NvReg3D_MmeShadowScratchN + (n))
