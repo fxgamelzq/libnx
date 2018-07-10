@@ -1,0 +1,11 @@
+language: c
+
+sudo: required
+
+services: docker 
+
+install:
+  - docker pull devkitpro/devkita64
+
+script:
+  - docker run -e ENABLE_COMPATIBILITY_REPORTING -v $TRAVIS_BUILD_DIR:/libnx devkitpro/devkita64 /bin/bash -ex /libnx/.travis/docker.sh
