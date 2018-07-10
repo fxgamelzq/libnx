@@ -1,3 +1,5 @@
+#pragma once
+
 enum {
     NvCmdCommon_BindObject = 0
 };

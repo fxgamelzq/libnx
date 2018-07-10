@@ -1,3 +1,5 @@
+#pragma once
+
 typedef struct {
     NvBuffer* color_buffer;
     size_t width;

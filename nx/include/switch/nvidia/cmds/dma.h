@@ -1,3 +1,5 @@
+#pragma once
+
 enum {
     NvRegDma_Launch = 0x0c0,
     NvRegDma_SourceAddr = 0x100,

@@ -1,3 +1,5 @@
+#pragma once
+
 typedef struct {
     float scale[3];
     float translate[3];
@@ -35,4 +37,3 @@ static inline void vnViewportSetDefaults(VnViewportConfig* c) {
 }
 
 void vnSetViewport(Vn* vn, size_t index, VnViewportConfig* c);
-

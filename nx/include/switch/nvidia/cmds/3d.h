@@ -1,3 +1,5 @@
+#pragma once
+
 enum {
     NvReg3D_MmeShadowRamControl = 0x49,
     NvReg3D_LineWidthSeparate = 0x83,
@@ -39,7 +41,7 @@ enum {
     NvReg3D_ClearFlags = 0x43e,
     NvReg3D_ConservativeRaster = 0x452,
     NvReg3D_MultisampleCoverageToColor = 0x47e,
-    NvReg3D_RenderTargetControl = 0x487, 
+    NvReg3D_RenderTargetControl = 0x487,
     NvReg3D_ZetaArrayMode = 0x48c,
     NvReg3D_LinkedTsc = 0x48d,
     NvReg3D_BlendIndependent = 0x4b9,
