@@ -4,7 +4,7 @@ typedef struct {
     iova_t gpu_addr;
     u32 width;
     u32 height;
-    NvBufferKind format;
+    u32 format;
     u32 tile_mode;
 } VnRenderTargetConfig;
 
@@ -19,7 +19,7 @@ static inline void vnRenderTargetSetDimensions(VnRenderTargetConfig* c, size_t w
     c->tile_mode = 0x040;
 }
 
-static inline void vnRenderTargetSetFormat(VnRenderTargetConfig* c, NvBufferKind format) {
+static inline void vnRenderTargetSetFormat(VnRenderTargetConfig* c, u32 format) {
     c->format = format;
 }
 
