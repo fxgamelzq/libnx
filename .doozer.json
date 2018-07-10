@@ -2,7 +2,7 @@
   "targets": {
     "lib": {
 
-      "buildenv": "docker:devkitpro/devkita64:20180613",
+      "buildenv": "docker:devkitpro/devkita64:latest",
 
       "buildcmd": [
         "sudo -E make -j${PARALLEL} -C nx install",
