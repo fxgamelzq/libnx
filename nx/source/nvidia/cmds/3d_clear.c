@@ -1,31 +1,12 @@
 #include <switch.h>
 #include <string.h>
 
-void vnClearBuffer(Vn* vn, NvBuffer* buf, u32 width, u32 height, u32 format, const float colors[4])
+void vnClearBuffer(Vn* vn, u32 width, u32 height, const float colors[4])
 {
     vnAddCmd(
         vn,
         NvIncr(0, NvReg3D_ClearColor, f2i(colors[0]), f2i(colors[1]), f2i(colors[2]), f2i(colors[3])),
-        NvIncr(0, NvReg3D_ScreenScissorHorizontal, 0 | (width << 16), 0 | (height << 16)),
-        NvIncr(0, NvReg3D_RenderTargetControl, (076543210 << 4) | 1)); // bit0 probably enables RT #0
-
-    iova_t gpu_addr = nvBufferGetGpuAddr(buf);
-    vnAddCmd(
-        vn,
-        NvIncr(0, NvReg3D_RenderTargetNAddr + 0x10*0,
-            gpu_addr >> 32, gpu_addr,
-            buf->size / height, /* Stride if linear */
-            height,
-            format,   /* Format */
-            0x1000, /* TileMode */
-            1,      /* ArrayMode */
-            0,      /* Stride */
-            0       /* BaseLayer */
-        )
-    );
-
-    // Disable zeta + multisample
-    vnAddCmd(vn, NvImm(0, 0x54E, 0), NvImm(0, 0x54D, 0));
+        NvImm(0, 0x54E, 0), NvImm(0, 0x54D, 0)); // Disable zeta + multisample
 
     // Only layer 0.
     int z;

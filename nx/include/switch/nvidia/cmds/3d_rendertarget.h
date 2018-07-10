@@ -1,23 +1,26 @@
 #pragma once
 
 typedef struct {
-    NvBuffer* color_buffer;
-    size_t width;
-    size_t height;
+    iova_t gpu_addr;
+    u32 width;
+    u32 height;
     NvBufferKind format;
+    u32 tile_mode;
 } VnRenderTargetConfig;
 
-void vnRenderTargetSetColorBuffer(VnRenderTargetConfig* c, NvBuffer* buffer) {
-    c->color_buffer = buffer;
+static inline void vnRenderTargetSetColorBuffer(VnRenderTargetConfig* c, iova_t gpu_addr) {
+    c->gpu_addr = gpu_addr;
 }
 
-void vnRenderTargetSetDimensions(VnRenderTargetConfig* c, size_t width, size_t height) {
+static inline void vnRenderTargetSetDimensions(VnRenderTargetConfig* c, size_t width, size_t height) {
     c->width = width;
     c->height = height;
+    // TODO: Support tile modes for small/linear render targets
+    c->tile_mode = 0x040;
 }
 
-void vnRenderTargetSetFormat(VnRenderTargetConfig* c, NvBufferKind format) {
+static inline void vnRenderTargetSetFormat(VnRenderTargetConfig* c, NvBufferKind format) {
     c->format = format;
 }
 
-void vnSetRenderTargets(Vn* vn, VnRenderTargetConfig* targets, size_t num_targets);
+void vnSetRenderTargets(Vn* vn, VnRenderTargetConfig* targets, u32 num_targets);
