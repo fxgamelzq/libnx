@@ -277,7 +277,7 @@ Result audrenRequestUpdateAudioRenderer(const void* in_param_buf, size_t in_para
         rc = resp->result;
     }
 
-    return 0;
+    return rc;
 }
 
 Result audrenStartAudioRenderer(void)
