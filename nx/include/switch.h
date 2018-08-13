@@ -84,6 +84,8 @@ extern "C" {
 #include "switch/nvidia/gpu/error_notifier.h"
 #include "switch/nvidia/gpu/gpu.h"
 
+#include "switch/audio/driver.h"
+
 #include "switch/runtime/env.h"
 #include "switch/runtime/nxlink.h"
 
