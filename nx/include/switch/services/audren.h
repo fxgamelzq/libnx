@@ -22,7 +22,7 @@
 #define AUDREN_INPUT_PARAM_ALIGNMENT  0x1000
 #define AUDREN_OUTPUT_PARAM_ALIGNMENT 0x10
 #define AUDREN_MEMPOOL_ALIGNMENT      0x1000
-#define AUDREN_BUFFER_ALIGNMENT       0x10
+#define AUDREN_BUFFER_ALIGNMENT       0x40
 
 #define AUDREN_REVISION_1 0x31564552 // REV1 [1.0.0+?]
 #define AUDREN_REVISION_2 0x32564552 // REV2 [2.0.0+?]
@@ -138,6 +138,16 @@ typedef struct {
     s16 numerator[3];
     s16 denominator[2];
 } AudioRendererBiquadFilter;
+
+typedef struct {
+    u16 coefficients[16];
+} AudioRendererAdpcmParameters;
+
+typedef struct {
+    u16 index;
+    s16 history0;
+    s16 history1;
+} AudioRendererAdpcmContext;
 
 typedef struct {
     const void* address;
