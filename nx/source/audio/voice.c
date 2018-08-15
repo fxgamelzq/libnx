@@ -106,6 +106,11 @@ void audrvVoiceStop(AudioDriver* d, int id)
     _audrvVoiceResetInternalState(d, id);
 }
 
+bool audrvVoiceIsPlaying(AudioDriver* d, int id)
+{
+    return d->in_voices[id].state == AudioRendererVoicePlayState_Started && d->etc->voices[id].first_wavebuf;
+}
+
 static void _audrvVoiceQueueWaveBufs(AudioDriver* d, int id)
 {
     AudioDriverWaveBuf* wavebuf = d->etc->voices[id].waiting_wavebuf;

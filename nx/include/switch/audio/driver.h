@@ -62,6 +62,7 @@ struct AudioDriverWaveBuf {
 bool audrvVoiceInit(AudioDriver* d, int id, int num_channels, PcmFormat format, int sample_rate);
 void audrvVoiceDrop(AudioDriver* d, int id);
 void audrvVoiceStop(AudioDriver* d, int id);
+bool audrvVoiceIsPlaying(AudioDriver* d, int id);
 bool audrvVoiceAddWaveBuf(AudioDriver* d, int id, AudioDriverWaveBuf* wavebuf);
 u32 audrvVoiceGetWaveBufSeq(AudioDriver* d, int id);
 u32 audrvVoiceGetPlayedSampleCount(AudioDriver* d, int id);
@@ -104,11 +105,6 @@ static inline void audrvVoiceSetPriority(AudioDriver* d, int id, int priority)
 static inline void audrvVoiceClearBiquadFilter(AudioDriver* d, int id, int biquad_id)
 {
     d->in_voices[id].biquads[biquad_id].enable = false;
-}
-
-static inline bool audrvVoiceIsPlaying(AudioDriver* d, int id)
-{
-    return d->in_voices[id].state == AudioRendererVoicePlayState_Started;
 }
 
 static inline void audrvVoiceSetPaused(AudioDriver* d, int id, bool paused)
