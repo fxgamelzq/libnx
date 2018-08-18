@@ -117,7 +117,12 @@ Result audrvUpdate(AudioDriver* d)
         return MAKERESULT(Module_Libnx, LibnxError_BadInput);
 
     for (int i = 0; i < d->etc->mempool_count; i ++)
-        d->in_mempools[i].state = out_mempools[i].new_state; // todo: this is supposed to be more complex
+    {
+        // todo: this is supposed to be more complex
+        AudioRendererMemPoolState new_state = out_mempools[i].new_state;
+        if (new_state != AudioRendererMemPoolState_Invalid)
+            d->in_mempools[i].state = new_state;
+    }
 
     AudioRendererVoiceInfoOut* out_voices = (AudioRendererVoiceInfoOut*)(out_mempools+d->etc->mempool_count);
     if (out_hdr->voices_sz != d->config.num_voices*sizeof(AudioRendererVoiceInfoOut))
