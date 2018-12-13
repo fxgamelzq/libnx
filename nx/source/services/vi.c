@@ -62,6 +62,9 @@ Result viInitialize(ViServiceType service_type)
     if (R_SUCCEEDED(rc))
         rc = _viGetSessionNoParams(&g_viIApplicationDisplayService, &g_viIHOSBinderDriverRelay, 100);
 
+    if (R_SUCCEEDED(rc))
+        rc = serviceConvertToDomain(&g_viIApplicationDisplayService);
+
     if (g_viServiceType >= ViServiceType_System && R_SUCCEEDED(rc))
         rc = _viGetSessionNoParams(&g_viIApplicationDisplayService, &g_viISystemDisplayService, 101);
 
@@ -117,23 +120,25 @@ static Result _viGetSession(Service* srv, Service* srv_out, void* inraw, size_t 
     IpcCommand c;
     ipcInitialize(&c);
 
-    memcpy(ipcPrepareHeader(&c, rawsize), inraw, rawsize);
+    memcpy(serviceIpcPrepareHeader(srv, &c, rawsize), inraw, rawsize);
 
     Result rc = serviceIpcDispatch(srv);
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
         } *resp = r.Raw;
 
+        serviceIpcParse(srv, &r, sizeof(*resp));
+        resp = r.Raw;
+
         rc = resp->result;
 
         if (R_SUCCEEDED(rc)) {
-            serviceCreate(srv_out, r.Handles[0]);
+            serviceCreateSubservice(srv_out, srv, &r, 0);
         }
     }
 
@@ -164,7 +169,7 @@ Result viOpenDisplay(const char *display_name, ViDisplay *display)
         char display_name[0x40];
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1010;
 
@@ -176,13 +181,15 @@ Result viOpenDisplay(const char *display_name, ViDisplay *display)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 display_id;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -209,7 +216,7 @@ Result viCloseDisplay(ViDisplay *display)
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1020;
     raw->display_id = display->display_id;
@@ -218,12 +225,14 @@ Result viCloseDisplay(ViDisplay *display)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
         memset(display, 0, sizeof(ViDisplay));
@@ -246,8 +255,7 @@ Result viGetDisplayResolution(ViDisplay *display, u64 *width, u64 *height)
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1102;
     raw->display_id = display->display_id;
@@ -256,14 +264,16 @@ Result viGetDisplayResolution(ViDisplay *display, u64 *width, u64 *height)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 width;
             u64 height;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -290,8 +300,7 @@ Result viGetDisplayLogicalResolution(ViDisplay *display, u32 *width, u32 *height
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1203;
     raw->display_id = display->display_id;
@@ -300,14 +309,16 @@ Result viGetDisplayLogicalResolution(ViDisplay *display, u32 *width, u32 *height
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u32 width;
             u32 height;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -338,8 +349,7 @@ Result viSetDisplayMagnification(ViDisplay *display, u32 x, u32 y, u32 width, u3
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1204;
     raw->display_id = display->display_id;
@@ -352,12 +362,14 @@ Result viSetDisplayMagnification(ViDisplay *display, u32 x, u32 y, u32 width, u3
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -379,8 +391,7 @@ Result viGetDisplayVsyncEvent(ViDisplay *display, Event *event_out)
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 5202;
     raw->display_id = display->display_id;
@@ -389,12 +400,14 @@ Result viGetDisplayVsyncEvent(ViDisplay *display, Event *event_out)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -421,8 +434,7 @@ Result viSetDisplayPowerState(ViDisplay *display, ViPowerState state)
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viIManagerDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 4205;
     raw->display_id = display->display_id;
@@ -432,12 +444,14 @@ Result viSetDisplayPowerState(ViDisplay *display, ViPowerState state)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIManagerDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -460,8 +474,7 @@ Result viSetDisplayAlpha(ViDisplay *display, float alpha)
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viIManagerDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 4201;
     raw->display_id = display->display_id;
@@ -471,12 +484,14 @@ Result viSetDisplayAlpha(ViDisplay *display, float alpha)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIManagerDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -497,8 +512,7 @@ Result viGetDisplayMinimumZ(ViDisplay *display, u64 *z) {
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1200;
     raw->display_id = display->display_id;
@@ -507,13 +521,15 @@ Result viGetDisplayMinimumZ(ViDisplay *display, u64 *z) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 z;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -538,8 +554,7 @@ Result viGetDisplayMaximumZ(ViDisplay *display, u64 *z) {
         u64 display_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 1202;
     raw->display_id = display->display_id;
@@ -548,13 +563,15 @@ Result viGetDisplayMaximumZ(ViDisplay *display, u64 *z) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 z;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -583,7 +600,7 @@ Result viCreateManagedLayer(const ViDisplay *display, ViLayerFlags layer_flags, 
         u64 aruid;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIManagerDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2010;
     raw->layer_flags = layer_flags;
@@ -595,13 +612,15 @@ Result viCreateManagedLayer(const ViDisplay *display, ViLayerFlags layer_flags, 
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 layer_id;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIManagerDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -623,7 +642,7 @@ Result viSetContentVisibility(bool v) {
         u32 visibility;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIManagerDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 7000;
     raw->visibility = v;
@@ -632,12 +651,14 @@ Result viSetContentVisibility(bool v) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIManagerDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -661,7 +682,7 @@ static Result _viOpenLayer(const ViDisplay *display, u64 layer_id, u64 aruid, u8
     ipcSendPid(&c);
     ipcAddRecvBuffer(&c, native_window, 0x100, 0);
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2020;
 
@@ -674,13 +695,15 @@ static Result _viOpenLayer(const ViDisplay *display, u64 layer_id, u64 aruid, u8
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 native_window_size;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -707,30 +730,34 @@ static Result _viCreateStrayLayer(const ViDisplay *display, u32 layer_flags, u64
 
     ipcAddRecvBuffer(&c, native_window, 0x100, 0);
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    Service *srv;
+    if (g_viServiceType < ViServiceType_System) {
+        srv = &g_viIApplicationDisplayService;
+    } else {
+        srv = &g_viISystemDisplayService;
+    }
+
+    raw = serviceIpcPrepareHeader(srv, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = g_viServiceType < ViServiceType_System ? 2030 : 2312;
     raw->layer_flags = layer_flags;
     raw->pad = 0;
     raw->display_id = display->display_id;
     
-    Result rc;
-    if (g_viServiceType < ViServiceType_System) {
-        rc = serviceIpcDispatch(&g_viIApplicationDisplayService);
-    } else {
-        rc = serviceIpcDispatch(&g_viISystemDisplayService);
-    }
+    Result rc = serviceIpcDispatch(srv);
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
             u64 layer_id;
             u64 native_window_size;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(srv, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
 
@@ -809,8 +836,7 @@ Result viSetLayerSize(ViLayer *layer, u64 width, u64 height) {
         u64 height;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2203;
     raw->layer_id = layer->layer_id;
@@ -821,12 +847,14 @@ Result viSetLayerSize(ViLayer *layer, u64 width, u64 height) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -848,8 +876,7 @@ Result viSetLayerZ(ViLayer *layer, u64 z) {
         u64 z;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2205;
     raw->layer_id = layer->layer_id;
@@ -859,12 +886,14 @@ Result viSetLayerZ(ViLayer *layer, u64 z) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -887,8 +916,7 @@ Result viSetLayerPosition(ViLayer *layer, float x, float y) {
         u64 layer_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
-
+    raw = serviceIpcPrepareHeader(&g_viISystemDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2201;
     raw->layer_id = layer->layer_id;
@@ -899,12 +927,14 @@ Result viSetLayerPosition(ViLayer *layer, float x, float y) {
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viISystemDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
@@ -926,7 +956,7 @@ Result viCloseLayer(ViLayer *layer)
         u64 layer_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = layer->stray_layer ? 2021 : 2031;
     raw->layer_id = layer->layer_id;
@@ -935,12 +965,14 @@ Result viCloseLayer(ViLayer *layer)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
         memset(layer, 0, sizeof(ViLayer));
@@ -965,7 +997,7 @@ Result viSetLayerScalingMode(ViLayer *layer, ViScalingMode scaling_mode)
         u64 layer_id;
     } *raw;
 
-    raw = ipcPrepareHeader(&c, sizeof(*raw));
+    raw = serviceIpcPrepareHeader(&g_viIApplicationDisplayService, &c, sizeof(*raw));
     raw->magic = SFCI_MAGIC;
     raw->cmd_id = 2101;
     raw->scaling_mode = scaling_mode;
@@ -976,12 +1008,14 @@ Result viSetLayerScalingMode(ViLayer *layer, ViScalingMode scaling_mode)
 
     if (R_SUCCEEDED(rc)) {
         IpcParsedCommand r;
-        ipcParse(&r);
 
         struct {
             u64 magic;
             u64 result;
-        } *resp = r.Raw;
+        } *resp;
+
+        serviceIpcParse(&g_viIApplicationDisplayService, &r, sizeof(*resp));
+        resp = r.Raw;
 
         rc = resp->result;
     }
